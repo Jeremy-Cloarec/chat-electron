@@ -5,7 +5,7 @@ export type Message = {
     id: number;
     type: string;
     content: string;
-    conversation_id: number; // Changed from room: string
+    conversation_id: number | string ;
     author: string;
     user_id: number;
 };
