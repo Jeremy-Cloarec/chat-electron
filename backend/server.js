@@ -35,7 +35,7 @@ io.on('connection', socket => {
     console.log(`Client connected: ${socket.id}`);
 
     // Upon connection - only to user
-    socket.emit('message', buildMsg(ADMIN, 'Welcome to the chat!'));
+    socket.emit('message', buildMsg(ADMIN, 'Welcome to the chat from the back!'));
 
     socket.on('enterRoom', ({ name, room }) => {
         // Leave previous room

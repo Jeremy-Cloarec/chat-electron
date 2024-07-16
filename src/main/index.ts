@@ -1,7 +1,11 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
+import { Message } from '../type/Message'
+
+import { io } from 'socket.io-client'
+
+const socket = io('http://localhost:3500')
 
 function createWindow(): void {
   // Create the browser window.
@@ -10,7 +14,6 @@ function createWindow(): void {
     height: 670,
     show: false,
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
@@ -33,6 +36,22 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  const handleMessage = (message: unknown) => {
+    console.log('Received message', message)
+    mainWindow.webContents.send('socket-message', message)
+  }
+
+  socket.on('message', handleMessage)
+
+  mainWindow.on('close', () => {
+    socket.off('message', handleMessage)
+  })
+
+  ipcMain.on('socket-message', (_, message: Message) => {
+    // Add the Message type to the message parameter
+    socket.emit('message', message)
+  })
 }
 
 // This method will be called when Electron has finished
@@ -48,9 +67,6 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
-
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
 
   createWindow()
 
