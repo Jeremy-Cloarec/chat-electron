@@ -1,7 +1,8 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron';
 import { join } from 'path';
 import { electronApp, optimizer, is } from '@electron-toolkit/utils';
-import { MessageType } from '../type/MessageType';
+import {Message} from '../type/Message'
+
 
 import { io } from 'socket.io-client';
 
@@ -81,7 +82,7 @@ function createWindow(): void {
     socket.off('message', handleMessage);
   });
 
-  ipcMain.on('socket-message', (_, message: MessageType) => {
+  ipcMain.on('socket-message', (_, message: Message) => {
     socket.emit('message', message);
   });
 }

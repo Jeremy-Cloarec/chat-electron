@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { MessageType } from 'src/type/MessageType';
 import { useSocket, SocketProvider } from '../../providers/SocketProvider';
+import { v4 as uuidv4 } from 'uuid';
+import { Message } from '../../type/Message';
+
 
 const Chat = () => {
   const { enterRoom, send, onMessage, onActivity, activity, onRoomList } = useSocket();
@@ -8,12 +10,29 @@ const Chat = () => {
   const [name, setName] = useState('');
   const [room, setRoom] = useState('');
   const [rooms, setRooms] = useState<string[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
+
+  // type Message = {
+  //   id: string;
+  //   name: string;
+  //   text: string;
+  //   time: string;
+  //   conversation_id: string;
+  // }
 
   useEffect(() => {
     onRoomList((rooms) => {
       setRooms(rooms);
     });
   }, [onRoomList]);
+
+  useEffect(() => {
+    onMessage((msg: Message) => {
+      setMessages((prevMessages) => [...prevMessages, msg]);
+    });
+  }, [onMessage]);
+  console.log(messages);
+
 
   const handleJoinRoom = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +42,15 @@ const Chat = () => {
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (message) {
-      send({ id: Date.now(), type: 'message', content: message, conversation_id: room, author: name, user_id: Date.now() });
+      const newMessage: Message = {
+        id: uuidv4(),
+        name,
+        text: message,
+        time: new Date().toLocaleTimeString(),
+        conversation_id: room
+      };
+      send(newMessage);
+      setMessages((prevMessages) => [...prevMessages, newMessage]); // Ajout du message localement pour l'afficher immédiatement
       setMessage('');
     }
   };
@@ -55,7 +82,19 @@ const Chat = () => {
         <h3>Active Rooms</h3>
         <ul>
           {rooms.map((room, index) => (
-            <li key={index}>Rooms : {room}</li>
+            <li key={index}>
+              <p>Rooms : {room}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h3>Messages</h3>
+        <ul>
+          {messages.map((msg) => (
+            <li key={msg.id}>
+              <strong>{msg.name}</strong>: {msg.text} <em>({msg.time})</em>
+            </li>
           ))}
         </ul>
       </div>

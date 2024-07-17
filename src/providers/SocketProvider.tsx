@@ -1,14 +1,6 @@
 import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
-
-export type MessageType = {
-    id: number;
-    type: string;
-    content: string;
-    conversation_id: number | string;
-    author: string;
-    user_id: number;
-};
+import { Message } from '../type/Message';
 
 interface User {
     id: string;
@@ -18,8 +10,9 @@ interface User {
 
 interface AppSocketContext {
     socket: Socket | null;
-    onMessage: (callback: (message: MessageType) => void) => void;
-    send: (message: MessageType) => void;
+    onMessage: (callback: (message: Message) => void) => void;
+    offMessage: (callback: (message: Message) => void) => void;
+    send: (message: Message) => void;
     enterRoom: (name: string, room: string) => void;
     onRoomList: (callback: (rooms: string[]) => void) => void;
     onUserList: (callback: (users: User[]) => void) => void;
@@ -42,29 +35,32 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         setSocket(newSocket);
         console.log('Socket connected');
 
-        setSocket(newSocket);
-        console.log('Socket connected');
-
-        const handleConnect = () => {
+        newSocket.on('connect', () => {
             console.log(`Connected with socket id: ${newSocket.id}`);
-        };
+        });
 
-        const handleDisconnect = () => {
+        newSocket.on('disconnect', () => {
             console.log('Socket disconnected');
-        };
+        });
 
-        newSocket.on('connect', handleConnect);
-        newSocket.on('disconnect', handleDisconnect);
+        return () => {
+            newSocket.close();
+        };
 
     }, []);
 
-    const onMessage = (callback: (message: MessageType) => void) => {
+    const onMessage = (callback: (message: Message) => void) => {
         if (!socket) return;
         socket.on('message', callback);
         console.log('Socket message event listener added');
     };
 
-    const send = (message: MessageType) => {
+    const offMessage = (callback: (message: Message) => void) => {
+        if (!socket) return;
+        socket.off('message', callback);
+    };
+
+    const send = (message: Message) => {
         if (!socket) return;
         socket.emit('message', message);
         console.log('Socket message sent', message);
@@ -104,9 +100,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         console.log(`Activity sent for ${name}`);
     };
 
-
     return (
-        <SocketContext.Provider value={{ socket, onMessage, send, enterRoom, onRoomList, onUserList, onActivity, activity }}>
+        <SocketContext.Provider value={{ socket, onMessage, offMessage, send, enterRoom, onRoomList, onUserList, onActivity, activity }}>
             {children}
         </SocketContext.Provider>
     );
