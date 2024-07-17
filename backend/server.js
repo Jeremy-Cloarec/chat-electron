@@ -54,7 +54,7 @@ function buildMsg(name, text, conversation_id = null) {
 io.on('connection', (socket) => {
   console.log(`Client connected: ${socket.id}`);
 
-  socket.emit('message', buildMsg(ADMIN, 'Welcome to the chat from the back!'));
+  socket.emit('message', buildMsg(ADMIN, 'Welcome to the chat !'));
 
   socket.on('enterRoom', ({ name, room }) => {
     const prevRoom = getUser(socket.id)?.room;

@@ -77,50 +77,57 @@ const Chat = () => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleJoinRoom}>
+    <div className='container'>
+      <form className="container-room" onSubmit={handleJoinRoom}>
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
         <input type="text" value={room} onChange={(e) => setRoom(e.target.value)} placeholder="Room" required />
         <button type="submit">Join Room</button>
       </form>
-      <form onSubmit={handleSendMessage}>
-        <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Message"
-          onKeyPress={handleTyping}
-          required
-        />
-        <button type="submit">Send Message</button>
-      </form>
-      <div>
-        <h3>Active Rooms</h3>
+      <div className='active-room'>
+        {room && <h3>Rooms:</h3>}
         <ul>
           {rooms.map((room, index) => (
             <li key={index}>
-              <p>Rooms : {room}</p>
+              <p>{room}</p>
             </li>
           ))}
         </ul>
       </div>
-      <div>
-        <h3>Messages</h3>
-        <ul>
+      <div className='container-message'>
+        <ul className='messages'>
           {messages.map((msg) => (
-            <li key={msg.id}>
-              <strong>{msg.name}</strong>: {msg.text} <em>({msg.time})</em>
+            <li key={msg.id} className={msg.name === name ? 'sent' : msg.name === 'Admin' ? 'admin' : 'received'}>
+              <div className='info-message'>
+                <div>{msg.name}</div>
+                <div>{msg.time}</div>
+              </div>
+              <div className='content-info'> 
+                {msg.text}
+              </div>
             </li>
           ))}
         </ul>
       </div>
-      <div>
-        <h3>Typing Indicator</h3>
-        {typingUsers.length > 0 && (
-          <p>{typingUsers.join(', ')} {typingUsers.length > 1 ? 'are' : 'is'} typing...</p>
-        )}
-      </div>
+      <form className='container-submit' onSubmit={handleSendMessage}>
+        <div className='container-typing'>
+          {typingUsers.length > 0 && (
+            <p>{typingUsers.join(', ')} {typingUsers.length > 1 ? 'are' : 'is'} typing...</p>
+          )}
+        </div>
+        <div className='container-input'>
+          <input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Message"
+            onKeyPress={handleTyping}
+            required
+          />
+          <button type="submit">Send Message</button>
+        </div>
+      </form>
     </div>
+
   );
 };
 
