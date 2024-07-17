@@ -10,6 +10,7 @@ const Chat = () => {
   const [room, setRoom] = useState('');
   const [rooms, setRooms] = useState<string[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
 
   useEffect(() => {
     onRoomList((rooms) => {
@@ -31,7 +32,17 @@ const Chat = () => {
 
   useEffect(() => {
     const handleActivity = (name: string) => {
-      console.log(`${name} is typing...`);
+      setTypingUsers((prevTypingUsers) => {
+        if (!prevTypingUsers.includes(name)) {
+          return [...prevTypingUsers, name];
+        }
+        return prevTypingUsers;
+      });
+
+      // Remove typing indicator after a delay (e.g., 3 seconds)
+      setTimeout(() => {
+        setTypingUsers((prevTypingUsers) => prevTypingUsers.filter((user) => user !== name));
+      }, 3000);
     };
 
     onActivity(handleActivity);
@@ -57,8 +68,7 @@ const Chat = () => {
         conversation_id: room,
       };
       send(newMessage);
-      // setMessages((prevMessages) => [...prevMessages, newMessage]); 
-      setMessage('');
+      setMessage(''); // Clear the message input after sending
     }
   };
 
@@ -74,7 +84,14 @@ const Chat = () => {
         <button type="submit">Join Room</button>
       </form>
       <form onSubmit={handleSendMessage}>
-        <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Message" onKeyPress={handleTyping} required />
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Message"
+          onKeyPress={handleTyping}
+          required
+        />
         <button type="submit">Send Message</button>
       </form>
       <div>
@@ -96,6 +113,12 @@ const Chat = () => {
             </li>
           ))}
         </ul>
+      </div>
+      <div>
+        <h3>Typing Indicator</h3>
+        {typingUsers.length > 0 && (
+          <p>{typingUsers.join(', ')} {typingUsers.length > 1 ? 'are' : 'is'} typing...</p>
+        )}
       </div>
     </div>
   );
