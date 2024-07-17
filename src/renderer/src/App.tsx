@@ -57,7 +57,7 @@ const Chat = () => {
         conversation_id: room,
       };
       send(newMessage);
-      setMessages((prevMessages) => [...prevMessages, newMessage]); // Ajout du message localement pour l'afficher immédiatement
+      // setMessages((prevMessages) => [...prevMessages, newMessage]); 
       setMessage('');
     }
   };
