@@ -1,68 +1,61 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MessageType } from 'src/type/MessageType';
 import { useSocket, SocketProvider } from '../../providers/SocketProvider';
 
 const Chat = () => {
-  const { onMessage, send } = useSocket();
-  const [messages, setMessages] = useState<MessageType[]>([]);
+  const { enterRoom, send, onMessage, onActivity, activity, onRoomList } = useSocket();
   const [message, setMessage] = useState('');
   const [name, setName] = useState('');
   const [room, setRoom] = useState('');
-
-  messages.map((msg) => { msg.type === "message" && console.log(msg) });
-  console.log(messages);
+  const [rooms, setRooms] = useState<string[]>([]);
 
   useEffect(() => {
-    onMessage((messages: MessageType) => {
-      console.log('Message received:', messages);
-      setMessages((prevMessages) => [...prevMessages, messages]);
+    onRoomList((rooms) => {
+      setRooms(rooms);
     });
-  }, [onMessage]);
+  }, [onRoomList]);
 
-  const sendMessage = () => {
-    if (name && message && room) {
-      const newMessage: MessageType = {
-        id: Date.now(),
-        type: 'message',
-        content: message,
-        conversation_id: room,
-        author: name,
-        user_id: Date.now(),
-      };
-      send(newMessage);
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+  const handleJoinRoom = (e: React.FormEvent) => {
+    e.preventDefault();
+    enterRoom(name, room);
+  };
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (message) {
+      send({ id: Date.now(), type: 'message', content: message, conversation_id: room, author: name, user_id: Date.now() });
       setMessage('');
-
-      console.log('Message sent:', message);
     }
   };
 
-  const enterRoom = () => {
-    if (name && room) {
-      send({ id: Date.now(), type: 'enterRoom', content: '', conversation_id: room, author: name, user_id: Date.now() });
-    }
+  const handleTyping = () => {
+    activity(name);
   };
+
+  onMessage((msg) => {
+    console.log(msg);
+  });
+
+  onActivity((name) => {
+    console.log(`${name} is typing...`);
+  });
 
   return (
     <div>
+      <form onSubmit={handleJoinRoom}>
+        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
+        <input type="text" value={room} onChange={(e) => setRoom(e.target.value)} placeholder="Room" required />
+        <button type="submit">Join Room</button>
+      </form>
+      <form onSubmit={handleSendMessage}>
+        <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Message" onKeyPress={handleTyping} required />
+        <button type="submit">Send Message</button>
+      </form>
       <div>
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" />
-        <input type="text" value={room} onChange={(e) => setRoom(e.target.value)} placeholder="Room" />
-        <button onClick={enterRoom}>Enter Room</button>
-      </div>
-      <div>
-        <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Message" />
-        <button onClick={sendMessage}>Send Message</button>
-      </div>
-      <div>
-        <h2>Chat</h2>
+        <h3>Active Rooms</h3>
         <ul>
-          {messages.map((msg) => (
-            msg.type === 'message' && (
-              <li key={msg.id}>
-                {msg.content}
-              </li>
-            )
+          {rooms.map((room, index) => (
+            <li key={index}>Rooms : {room}</li>
           ))}
         </ul>
       </div>

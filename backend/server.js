@@ -1,21 +1,19 @@
 import express from 'express'
 import { Server } from 'socket.io'
-import path from 'path'
 import { fileURLToPath } from 'url'
 import cors from 'cors'
 
 const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 const PORT = process.env.PORT || 3500
 const ADMIN = 'Admin'
 
 const app = express()
 
-app.use(express.static(path.join(__dirname, 'public')))
 app.use(
   cors({
-    origin: 'http://localhost:5173'
+    origin: '*',
+    credentials: true,
   })
 )
 
@@ -33,8 +31,9 @@ const UsersState = {
 
 const io = new Server(expressServer, {
   cors: {
-    origin: 'http://localhost:5173',
-    methods: ['GET', 'POST']
+    origin: '*',
+    methods: ['GET', 'POST'],
+    credentials: true,
   }
 })
 

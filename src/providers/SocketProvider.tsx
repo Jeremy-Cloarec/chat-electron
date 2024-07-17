@@ -33,8 +33,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
 
     useEffect(() => {
-        const newSocket = io('http://localhost:3500', {
-            withCredentials: true,
+        const newSocket = io('ws://localhost:3500', {
+            withCredentials: false,
             extraHeaders: {
                 "my-custom-header": "abcd"
             }
@@ -42,17 +42,20 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         setSocket(newSocket);
         console.log('Socket connected');
 
-        newSocket.on('connect', () => {
+        setSocket(newSocket);
+        console.log('Socket connected');
+
+        const handleConnect = () => {
             console.log(`Connected with socket id: ${newSocket.id}`);
-        });
-
-        newSocket.on('disconnect', () => {
-            console.log('Socket disconnected');
-        });
-
-        return () => {
-            newSocket.close();
         };
+
+        const handleDisconnect = () => {
+            console.log('Socket disconnected');
+        };
+
+        newSocket.on('connect', handleConnect);
+        newSocket.on('disconnect', handleDisconnect);
+
     }, []);
 
     const onMessage = (callback: (message: MessageType) => void) => {
@@ -100,6 +103,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         socket.emit('activity', name);
         console.log(`Activity sent for ${name}`);
     };
+
 
     return (
         <SocketContext.Provider value={{ socket, onMessage, send, enterRoom, onRoomList, onUserList, onActivity, activity }}>
