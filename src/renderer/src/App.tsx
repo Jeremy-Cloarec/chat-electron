@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { MessageType } from 'src/type/MessageType';
-import { ConversationType } from 'src/type/ConversationType';
 import { useSocket, SocketProvider } from '../../providers/SocketProvider';
 
 const Chat = () => {
@@ -11,21 +10,31 @@ const Chat = () => {
   const [room, setRoom] = useState('');
 
   messages.map((msg) => { msg.type === "message" && console.log(msg) });
-
+  console.log(messages);
 
   useEffect(() => {
-    onMessage((msg: MessageType) => {
-      console.log('Message received:', msg);
-      setMessages((prevMessages) => [...prevMessages, msg]);
+    onMessage((messages: MessageType) => {
+      console.log('Message received:', messages);
+      setMessages((prevMessages) => [...prevMessages, messages]);
     });
   }, [onMessage]);
 
   const sendMessage = () => {
     if (name && message && room) {
-      send({ id: Date.now(), type: 'message', content: message, conversation_id: room, author: name, user_id: Date.now() });
+      const newMessage: MessageType = {
+        id: Date.now(),
+        type: 'message',
+        content: message,
+        conversation_id: room,
+        author: name,
+        user_id: Date.now(),
+      };
+      send(newMessage);
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
       setMessage('');
+
+      console.log('Message sent:', message);
     }
-    console.log('Message sent:', message);
   };
 
   const enterRoom = () => {
