@@ -3,22 +3,13 @@ import { useSocket, SocketProvider } from '../../providers/SocketProvider';
 import { v4 as uuidv4 } from 'uuid';
 import { Message } from '../../type/Message';
 
-
 const Chat = () => {
   const { enterRoom, send, onMessage, onActivity, activity, onRoomList } = useSocket();
   const [message, setMessage] = useState('');
   const [name, setName] = useState('');
   const [room, setRoom] = useState('');
   const [rooms, setRooms] = useState<string[]>([]);
-  const [messages, setMessages] = useState<any[]>([]);
-
-  // type Message = {
-  //   id: string;
-  //   name: string;
-  //   text: string;
-  //   time: string;
-  //   conversation_id: string;
-  // }
+  const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
     onRoomList((rooms) => {
@@ -27,12 +18,28 @@ const Chat = () => {
   }, [onRoomList]);
 
   useEffect(() => {
-    onMessage((msg: Message) => {
+    const handleMessage = (msg: Message) => {
       setMessages((prevMessages) => [...prevMessages, msg]);
-    });
-  }, [onMessage]);
-  console.log(messages);
+    };
 
+    onMessage(handleMessage);
+    return () => {
+      // Cleanup listener when component unmounts or onMessage changes
+      onMessage(() => { });
+    };
+  }, [onMessage]);
+
+  useEffect(() => {
+    const handleActivity = (name: string) => {
+      console.log(`${name} is typing...`);
+    };
+
+    onActivity(handleActivity);
+    return () => {
+      // Cleanup listener when component unmounts or onActivity changes
+      onActivity(() => { });
+    };
+  }, [onActivity]);
 
   const handleJoinRoom = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +54,7 @@ const Chat = () => {
         name,
         text: message,
         time: new Date().toLocaleTimeString(),
-        conversation_id: room
+        conversation_id: room,
       };
       send(newMessage);
       setMessages((prevMessages) => [...prevMessages, newMessage]); // Ajout du message localement pour l'afficher immédiatement
@@ -58,14 +65,6 @@ const Chat = () => {
   const handleTyping = () => {
     activity(name);
   };
-
-  onMessage((msg) => {
-    console.log(msg);
-  });
-
-  onActivity((name) => {
-    console.log(`${name} is typing...`);
-  });
 
   return (
     <div>
