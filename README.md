@@ -1,34 +1,26 @@
 # chat-electron
 
-An Electron application with React and TypeScript
+Une application desktop de chat avec Electron, React et Socket.io
 
-## Recommended IDE Setup
+## démarrage du projet
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+`npm install`
+`cd ./backend`
+`npm install`
 
-## Project Setup
+### Pour lancer le frontend 
 
-### Install
+`npm run dev` 
 
-```bash
-$ npm install
-```
+### Pour lancer le server socket (dans un autre terminal)
+`cd ./backend`
+`npm run start`
 
-### Development
+## notes
 
-```bash
-$ npm run dev
-```
+Le projet ouvre deux fenêtres par défaut.
+On peut en ouvrir plus en lançant la commande `npm run dev` dans un autre terminal.
 
-### Build
+Il est nécessaire de créer un utilisateur et une room pour envoyer des messages.
 
-```bash
-# For windows
-$ npm run build:win
 
-# For macOS
-$ npm run build:mac
-
-# For Linux
-$ npm run build:linux
-```
