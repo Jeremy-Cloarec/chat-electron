@@ -1,8 +1,8 @@
-# chat-electron
+# Chat
 
 Une application desktop de chat avec Electron, React et Socket.io
 
-## démarrage du projet
+## Démarrage du projet
 
 `npm install`
 `cd ./backend`
