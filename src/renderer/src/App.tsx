@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSocket, SocketProvider } from '../../providers/SocketProvider';
 import { v4 as uuidv4 } from 'uuid';
 import { Message } from '../../type/Message';
@@ -84,7 +84,7 @@ const Chat = () => {
         <button type="submit">Join Room</button>
       </form>
       <div className='active-room'>
-        {room && <h3>Rooms:</h3>}
+        <h3>Rooms:</h3>
         <ul>
           {rooms.map((room, index) => (
             <li key={index}>
@@ -101,7 +101,7 @@ const Chat = () => {
                 <div>{msg.name}</div>
                 <div>{msg.time}</div>
               </div>
-              <div className='content-info'> 
+              <div className='content-info'>
                 {msg.text}
               </div>
             </li>
